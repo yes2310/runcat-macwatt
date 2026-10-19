@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+# Builds
+/dist/
+*.egg-info/
+# Local status and logs
+last-error.txt
+service-error.log
+.DS_Store
+# Secrets/local settings
+.env
+.env.*
