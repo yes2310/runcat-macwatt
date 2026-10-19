@@ -2,116 +2,143 @@
 
 **English** | [한국어](README.ko.md)
 
-**MacBook charging and power metrics for RunCat Neo** — keep only the cat in your menu bar and check power details from the RunCat dashboard.
+Adds a **Power** card to the [RunCat Neo](https://github.com/runcat-dev/RunCatNeo) dashboard showing your MacBook's live charging and power draw. The menu bar stays cat-only.
 
-An unofficial, offline-installable Custom Metrics integration powered by [macwatt](https://github.com/ytomasch/macwatt). It reads your MacBook's actual power telemetry and maintains a local [RunCat Neo Custom Metrics](https://github.com/runcat-dev/RunCatNeo/blob/main/docs/CustomMetricsSchema.md) JSON file.
+```text
+⚡ 전력 (Power)
+   입력 전력 (Input)      86.1 W
+   배터리   (Battery)     충전 67.5 W      ← charging / 방전 = discharging
+   시스템 소비 (System)    18.6 W
+   충전기   (Charger)     140 W · 28 V / 5 A
+```
 
-## What the card displays
+> Card labels are in Korean for now. Numbers above are an example.
 
-| Metric | Example | Meaning |
-| --- | --- | --- |
-| `입력 전력` (input) | `86.1 W` | Measured power entering the Mac from the adapter |
-| `배터리` (battery) | `충전 67.5 W` / `방전 18.6 W` | Power flowing into (charge) or out of (discharge) the battery |
-| `시스템 소비` (system) | `18.6 W` | System power consumption |
-| `충전기` (adapter) | `140 W · 28 V / 5 A` | The **negotiated** charger contract reported by the Mac |
+---
 
-> Values above are illustrative. The card title (`전력`, "Power") and row labels are currently in Korean. Adapter information is **not** the charger make/model or a wall-meter reading. This relies on Apple's undocumented power telemetry, so some fields may be missing or update late depending on the Mac model and macOS version.
+## Before you start
 
-No wattage is added to the menu bar. If RunCat Neo's **Metrics Bar** is enabled, turn it off or hide this source to keep only the cat.
+- An **Apple Silicon MacBook** (M1 or later)
+- **RunCat Neo** installed
+- **Python 3.8+** — check with `python3 --version` in Terminal
 
-## Requirements
+---
 
-- **Apple Silicon MacBook** exposing `PowerTelemetryData` under `AppleSmartBattery` (checked automatically before install)
-- [RunCat Neo](https://github.com/runcat-dev/RunCatNeo) with Custom Metrics support
-- `python3` **3.8 or later**, standard library only
-- Runs in your macOS user session (no `sudo`)
+## Setup
 
-**No internet connection is needed** to install. The release ZIP bundles the unmodified `macwatt.py` and its MIT license. At runtime it makes no network connections and asks for no account permissions.
+### Step 1 — Install
 
-## Install
-
-Download `runcat-macwatt-v1.0.0.zip` from [GitHub Releases](https://github.com/yes2310/runcat-macwatt/releases), extract it, then run:
+Open **Terminal** and paste the whole block:
 
 ```bash
-cd ~/Downloads/runcat-macwatt
+cd ~/Downloads
+curl -LO https://github.com/yes2310/runcat-macwatt/releases/download/v1.0.0/runcat-macwatt-v1.0.0.zip
+unzip -o runcat-macwatt-v1.0.0.zip
+cd runcat-macwatt
 bash install.sh
 ```
 
-> If you extracted it somewhere else, `cd` into that folder and run `bash install.sh`.
+When you see **`Installed!`**, it's done. It now runs in the background and starts automatically at login.
 
-When installation finishes, open RunCat Neo → **Settings → Metrics → Custom Metrics → Add Custom Metrics Source** and add this file:
+<details>
+<summary>Prefer to download by hand?</summary>
+
+1. Download `runcat-macwatt-v1.0.0.zip` from the [Releases page](https://github.com/yes2310/runcat-macwatt/releases/latest).
+2. Double-click it to extract (Safari may do this for you).
+3. In Terminal:
+   ```bash
+   cd ~/Downloads/runcat-macwatt
+   bash install.sh
+   ```
+
+</details>
+
+### Step 2 — Add it to RunCat Neo
+
+1. Click the **cat in the menu bar** to open the dashboard, then open **Settings**.
+2. Go to **Metrics → Custom Metrics** and click **Add Custom Metrics Source**.
+3. In the file picker, press **`Command + Shift + G`**, paste the path below, press **Return**, then click **Open**.
 
 ```text
 ~/.config/runcat-neo-metrics/macbook-power.json
 ```
 
-In the file picker, press `Command + Shift + G` to type the path. Keep the **Metrics Bar disabled** to show only the cat in your menu bar.
+### Step 3 — Check
 
-### Upgrading from v2/v3
+Click the cat in the menu bar. A **⚡ 전력** card should appear on the dashboard and update by itself.
 
-Run the same `bash install.sh`. It stops the existing `dev.runcat.macwatt` agent and registers the new one. The metrics JSON **path stays the same, so you don't need to re-add it in RunCat.** The installer checks live sensor access before changing anything and tries to restore the previous install if the upgrade fails.
+> **Keep the menu bar cat-only:** new sources are hidden from RunCat's *Metrics Bar* by default. Leave this source's toggle off there.
 
-## How it works
+---
 
-1. macOS `launchd` starts **a single resident Python process** at login.
-2. [macwatt](https://github.com/ytomasch/macwatt) reads power telemetry from `ioreg` **every 5 seconds**.
-3. The RunCat JSON file is **atomically replaced only when the displayed values change**.
-4. RunCat Neo detects the file change and refreshes the Custom Metrics card.
+## Update
 
-**Polling every 5 seconds does not mean a fresh sensor sample every 5 seconds.** The underlying macOS telemetry may refresh much less often. Right after unplugging, a stale positive battery charge is shown as `갱신 대기` (awaiting refresh), and adapter input is shown as `0.0 W` while disconnected. After 3 consecutive read failures the card shows `측정 불가` (unavailable) and recovers automatically once telemetry returns.
+Download the new release and run `bash install.sh` again. The file path doesn't change, so there's nothing to redo in RunCat.
 
-This is not a separate GUI app — it's a background tool that produces local JSON data for RunCat.
+## Uninstall
 
-## Status / troubleshooting
+1. RunCat Neo → **Settings → Metrics → Custom Metrics**: remove the `macbook-power.json` source.
+2. In the extracted folder, run:
+   ```bash
+   bash uninstall.sh
+   ```
 
-From the extracted folder:
+---
+
+## Troubleshooting
+
+First, run this in the extracted folder to see the current state:
 
 ```bash
 bash status.sh
 ```
 
-Or check directly:
+| Problem | Fix |
+| --- | --- |
+| Install stops with *power telemetry is not available* | This Mac doesn't expose the power sensors this tool needs. It won't guess values. |
+| `python3` not found / version too old | Install Python 3.8 or later, then run `bash install.sh` again. |
+| Card doesn't appear | Make sure Step 2 is done and the path is exactly the one above. |
+| Card shows `측정 불가` (unavailable) | Sensor reads failed 3 times in a row. It recovers on its own; if not, check `bash status.sh`. |
+| Battery shows `갱신 대기` (waiting) | Normal right after unplugging — macOS takes a moment to refresh. |
+| Stopped updating after a macOS or Homebrew Python update | Run `bash install.sh` again. |
 
-```bash
-python3 -m json.tool ~/.config/runcat-neo-metrics/macbook-power.json
-python3 ~/.local/share/runcat-macwatt/power_metrics.py --check
-launchctl print "gui/$(id -u)/dev.runcat.macwatt"
-```
+Log files live in `~/.local/share/runcat-macwatt/` (`last-error.txt`, `service-error.log`).
 
-Log files:
+---
 
-```text
-~/.local/share/runcat-macwatt/last-error.txt
-~/.local/share/runcat-macwatt/service-error.log
-```
+## How it works
 
-- `측정 불가` / "telemetry unavailable" during install: check that your Mac exposes `PowerTelemetryData`. Other sensors are never substituted as estimates.
-- `python3 not found`: install Python 3.8+ and run again.
-- Card not showing in RunCat: check the file path and that it's registered under Custom Metrics.
-- Stopped updating after changing macOS or Homebrew Python: rerun `bash install.sh` to refresh the Python path in the launch agent.
+<details>
+<summary>Details</summary>
 
-## Uninstall
+- A small background service (`launchd`, label `dev.runcat.macwatt`) reads the Mac's power sensors through [macwatt](https://github.com/ytomasch/macwatt) **every 5 seconds**.
+- It rewrites the JSON file **only when a displayed value changes**, and RunCat Neo refreshes the card when the file changes.
+- macOS itself may refresh its power sensors less often than every 5 seconds.
+- **Charger** is the power contract the Mac negotiated with the adapter — not the brand/model, and not a wall-meter reading.
+- No `sudo`, no internet, no extra dependencies. Everything is bundled in the ZIP.
 
-Remove the Custom Metrics source in RunCat settings, then:
+Installed files:
 
-```bash
-bash uninstall.sh
-```
+| What | Where |
+| --- | --- |
+| Program | `~/.local/share/runcat-macwatt/` |
+| Card data (JSON) | `~/.config/runcat-neo-metrics/macbook-power.json` |
+| Login service | `~/Library/LaunchAgents/dev.runcat.macwatt.plist` |
 
-This removes only the installed code, the background agent and its JSON file. Other RunCat metrics are unaffected.
+</details>
 
-## Development and testing
+## Development
 
 ```bash
 bash scripts/test.sh
 ```
 
-Runs unit tests that work without macOS sensors, Bash syntax checks, and a release ZIP integrity check. The install ZIP is written to `dist/runcat-macwatt-v<VERSION>.zip` and the SHA-256 checksum to `dist/SHA256SUMS.txt`. See [CONTRIBUTING.md](CONTRIBUTING.md) and [PUBLISH_WITH_CLAUDE.md](PUBLISH_WITH_CLAUDE.md).
+Runs offline unit tests and builds the release ZIP into `dist/`. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Credits and license
+## License
 
-- This RunCat integration and its install scripts: [MIT License](LICENSE) · Copyright (c) 2026 yes2310
-- **macwatt**: Copyright (c) 2026 Amur Labs LLC, MIT License — keep its [original license](third_party/macwatt/LICENSE) and [notices](THIRD_PARTY_NOTICES.md).
-- **RunCat Neo**: a separate project; the app is not redistributed here. [Custom Metrics JSON Schema](https://github.com/runcat-dev/RunCatNeo/blob/main/docs/CustomMetricsSchema.md)
+- This project: [MIT](LICENSE) © 2026 yes2310
+- Bundled **macwatt**: MIT © 2026 Amur Labs LLC — see [license](third_party/macwatt/LICENSE) and [notices](THIRD_PARTY_NOTICES.md)
+- RunCat Neo is a separate app and is not included.
 
-*Unofficial integration. Not affiliated with or endorsed by RunCat Neo or macwatt.*
+*Unofficial. Not affiliated with RunCat Neo or macwatt.*
