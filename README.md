@@ -1,74 +1,76 @@
 # RunCat Neo × macwatt
 
-**RunCat Neo용 MacBook 충전·전력 메트릭** — 메뉴 막대에는 고양이만 두고, RunCat 대시보드에서 필요한 전력만 확인하세요.
+**English** | [한국어](README.ko.md)
 
-An unofficial, offline-installable Custom Metrics integration powered by [macwatt](https://github.com/ytomasch/macwatt). [English README](README_EN.md).
+**MacBook charging and power metrics for RunCat Neo** — keep only the cat in your menu bar and check power details from the RunCat dashboard.
 
-## 화면에 표시되는 항목
+An unofficial, offline-installable Custom Metrics integration powered by [macwatt](https://github.com/ytomasch/macwatt). It reads your MacBook's actual power telemetry and maintains a local [RunCat Neo Custom Metrics](https://github.com/runcat-dev/RunCatNeo/blob/main/docs/CustomMetricsSchema.md) JSON file.
 
-| 항목 | 표시 예시 | 설명 |
+## What the card displays
+
+| Metric | Example | Meaning |
 | --- | --- | --- |
-| 입력 전력 | `86.1 W` | 충전기에서 Mac으로 들어오는 측정 전력 |
-| 배터리 | `충전 67.5 W` / `방전 18.6 W` | 배터리로 들어가거나 나오는 전력 |
-| 시스템 소비 | `18.6 W` | 시스템 소비 전력 |
-| 충전기 | `140 W · 28 V / 5 A` | Mac에서 읽힌 **협상된** 충전기 사양 |
+| `입력 전력` (input) | `86.1 W` | Measured power entering the Mac from the adapter |
+| `배터리` (battery) | `충전 67.5 W` / `방전 18.6 W` | Power flowing into (charge) or out of (discharge) the battery |
+| `시스템 소비` (system) | `18.6 W` | System power consumption |
+| `충전기` (adapter) | `140 W · 28 V / 5 A` | The **negotiated** charger contract reported by the Mac |
 
-> 예시 수치입니다. 충전기 사양은 브랜드·모델명이나 콘센트 실측 소비전력이 아닙니다. Apple의 비공개 전력 텔레메트리에 의존하므로 Mac/OS에 따라 일부 값이 없거나 늦게 갱신될 수 있습니다.
+> Values above are illustrative. The card title (`전력`, "Power") and row labels are currently in Korean. Adapter information is **not** the charger make/model or a wall-meter reading. This relies on Apple's undocumented power telemetry, so some fields may be missing or update late depending on the Mac model and macOS version.
 
-카드 제목은 **전력**이고, 메뉴 막대에 전력 숫자는 추가하지 않습니다. RunCat Neo의 **Metrics Bar**가 켜져 있다면 꺼두거나 해당 소스를 숨겨야 고양이만 남습니다.
+No wattage is added to the menu bar. If RunCat Neo's **Metrics Bar** is enabled, turn it off or hide this source to keep only the cat.
 
-## 요구 사항
+## Requirements
 
-- **Apple Silicon MacBook** + `AppleSmartBattery`의 `PowerTelemetryData` 제공 (설치 전 자동 검사)
-- [RunCat Neo](https://github.com/runcat-dev/RunCatNeo) (사용자 정의 메트릭 지원 버전)
-- `python3` **3.8 이상**, 표준 라이브러리만 사용
-- macOS 사용자 세션에서 실행 (`sudo` 불필요)
+- **Apple Silicon MacBook** exposing `PowerTelemetryData` under `AppleSmartBattery` (checked automatically before install)
+- [RunCat Neo](https://github.com/runcat-dev/RunCatNeo) with Custom Metrics support
+- `python3` **3.8 or later**, standard library only
+- Runs in your macOS user session (no `sudo`)
 
-설치 중 인터넷 연결은 **필요하지 않습니다**. `macwatt.py`와 MIT 라이선스를 설치 ZIP에 포함했습니다. 실행 중에도 네트워크 연결이나 계정 권한을 요청하지 않습니다.
+**No internet connection is needed** to install. The release ZIP bundles the unmodified `macwatt.py` and its MIT license. At runtime it makes no network connections and asks for no account permissions.
 
-## 설치
+## Install
 
-GitHub Releases에서 `runcat-macwatt-v1.0.0.zip`을 다운로드하고 압축 해제한 뒤:
+Download `runcat-macwatt-v1.0.0.zip` from [GitHub Releases](https://github.com/yes2310/runcat-macwatt/releases), extract it, then run:
 
 ```bash
 cd ~/Downloads/runcat-macwatt
 bash install.sh
 ```
 
-> 다른 경로에 압축을 풀었다면 그 폴더로 이동해 `bash install.sh`를 실행하세요.
+> If you extracted it somewhere else, `cd` into that folder and run `bash install.sh`.
 
-설치가 완료되면 RunCat Neo에서 **Settings → Metrics → Custom Metrics → Add Custom Metrics Source**를 열고 다음 파일을 추가합니다.
+When installation finishes, open RunCat Neo → **Settings → Metrics → Custom Metrics → Add Custom Metrics Source** and add this file:
 
 ```text
 ~/.config/runcat-neo-metrics/macbook-power.json
 ```
 
-파일 선택 창에서 `Command + Shift + G`로 경로를 입력할 수 있습니다. **Metrics Bar는 비활성화**하면 메뉴 막대에는 고양이만 표시됩니다.
+In the file picker, press `Command + Shift + G` to type the path. Keep the **Metrics Bar disabled** to show only the cat in your menu bar.
 
-### 기존 v2/v3 사용자
+### Upgrading from v2/v3
 
-동일한 `bash install.sh` 명령어로 업그레이드합니다. 기존 `dev.runcat.macwatt` 서비스를 중지한 후 새 프로그램으로 다시 등록합니다. 메트릭 JSON의 **경로가 동일하므로 RunCat에 다시 추가할 필요는 없습니다.** 설치 전 실측 데이터 검사를 수행하고, 설치 실패 시 이전 설치를 복원하도록 시도합니다.
+Run the same `bash install.sh`. It stops the existing `dev.runcat.macwatt` agent and registers the new one. The metrics JSON **path stays the same, so you don't need to re-add it in RunCat.** The installer checks live sensor access before changing anything and tries to restore the previous install if the upgrade fails.
 
-## 작동 방식
+## How it works
 
-1. macOS `launchd`가 로그인 시 **Python 상주 프로세스 하나**를 실행합니다.
-2. [macwatt](https://github.com/ytomasch/macwatt)가 `ioreg`의 전력 텔레메트리를 **5초마다 조회**합니다.
-3. 표시 내용이 바뀌었을 때만 RunCat용 JSON 파일을 **원자적으로 교체**합니다.
-4. RunCat Neo가 파일 변경을 감지해 사용자 정의 메트릭 카드를 갱신합니다.
+1. macOS `launchd` starts **a single resident Python process** at login.
+2. [macwatt](https://github.com/ytomasch/macwatt) reads power telemetry from `ioreg` **every 5 seconds**.
+3. The RunCat JSON file is **atomically replaced only when the displayed values change**.
+4. RunCat Neo detects the file change and refreshes the Custom Metrics card.
 
-**5초마다 새 센서 샘플이 생긴다는 뜻은 아닙니다.** 실제 macOS 센서 데이터 갱신 주기는 환경에 따라 훨씬 길 수 있습니다. 분리 직후 배터리 충전 표시가 잠시 오래된 상태라면 `갱신 대기`로 표시하며, 전원 미연결 시 충전기 입력은 `0.0 W`로 표시합니다. 읽기 실패가 반복되면 카드는 `측정 불가`로 바뀌고 회복 시 자동 갱신됩니다.
+**Polling every 5 seconds does not mean a fresh sensor sample every 5 seconds.** The underlying macOS telemetry may refresh much less often. Right after unplugging, a stale positive battery charge is shown as `갱신 대기` (awaiting refresh), and adapter input is shown as `0.0 W` while disconnected. After 3 consecutive read failures the card shows `측정 불가` (unavailable) and recovers automatically once telemetry returns.
 
-이 프로그램은 별도 그래픽 앱이 아니라 RunCat용 로컬 JSON 데이터를 만드는 백그라운드 도구입니다.
+This is not a separate GUI app — it's a background tool that produces local JSON data for RunCat.
 
-## 상태 확인 / 문제 해결
+## Status / troubleshooting
 
-압축을 해제한 폴더에서:
+From the extracted folder:
 
 ```bash
 bash status.sh
 ```
 
-또는 직접 확인:
+Or check directly:
 
 ```bash
 python3 -m json.tool ~/.config/runcat-neo-metrics/macbook-power.json
@@ -76,40 +78,40 @@ python3 ~/.local/share/runcat-macwatt/power_metrics.py --check
 launchctl print "gui/$(id -u)/dev.runcat.macwatt"
 ```
 
-로그 파일:
+Log files:
 
 ```text
 ~/.local/share/runcat-macwatt/last-error.txt
 ~/.local/share/runcat-macwatt/service-error.log
 ```
 
-- `측정 불가` / 설치 시 telemetry unavailable: 해당 Mac에 `PowerTelemetryData`가 노출되는지 확인하세요. 다른 센서를 추정치로 대체하지 않습니다.
-- `python3 not found`: Python 3.8 이상을 설치하고 다시 실행하세요.
-- RunCat에 카드가 보이지 않음: 파일 경로와 RunCat의 Custom Metrics 등록 여부를 확인하세요.
-- macOS 또는 Homebrew Python을 변경한 뒤 자동 갱신되지 않음: `bash install.sh`를 다시 실행해 launchd의 Python 경로를 갱신하세요.
+- `측정 불가` / "telemetry unavailable" during install: check that your Mac exposes `PowerTelemetryData`. Other sensors are never substituted as estimates.
+- `python3 not found`: install Python 3.8+ and run again.
+- Card not showing in RunCat: check the file path and that it's registered under Custom Metrics.
+- Stopped updating after changing macOS or Homebrew Python: rerun `bash install.sh` to refresh the Python path in the launch agent.
 
-## 제거
+## Uninstall
 
-RunCat 설정에서 해당 Custom Metrics 소스를 제거한 다음:
+Remove the Custom Metrics source in RunCat settings, then:
 
 ```bash
 bash uninstall.sh
 ```
 
-설치된 코드·서비스·해당 JSON만 제거하고 다른 RunCat 메트릭에는 영향을 주지 않습니다.
+This removes only the installed code, the background agent and its JSON file. Other RunCat metrics are unaffected.
 
-## 개발 및 테스트
+## Development and testing
 
 ```bash
 bash scripts/test.sh
 ```
 
-macOS 센서 없이도 실행되는 유닛 테스트, Bash 문법 검사, 릴리스 ZIP 무결성 검사를 수행합니다. 설치 ZIP은 `dist/runcat-macwatt-v1.0.0.zip`에, SHA-256 검증 파일은 `dist/SHA256SUMS.txt`에 생성됩니다. GitHub 공개 방법은 [PUBLISH_WITH_CLAUDE.md](PUBLISH_WITH_CLAUDE.md) 및 [CLAUDE.md](CLAUDE.md)를 참고하세요.
+Runs unit tests that work without macOS sensors, Bash syntax checks, and a release ZIP integrity check. The install ZIP is written to `dist/runcat-macwatt-v<VERSION>.zip` and the SHA-256 checksum to `dist/SHA256SUMS.txt`. See [CONTRIBUTING.md](CONTRIBUTING.md) and [PUBLISH_WITH_CLAUDE.md](PUBLISH_WITH_CLAUDE.md).
 
-## 오픈소스 · 저작권
+## Credits and license
 
-- 이 RunCat 연동 코드와 설치 스크립트: [MIT License](LICENSE) · Copyright (c) 2026 yes2310
-- **macwatt**: Copyright (c) 2026 Amur Labs LLC, MIT License — 반드시 [원본 라이선스](third_party/macwatt/LICENSE)와 [고지](THIRD_PARTY_NOTICES.md)를 유지하세요.
-- **RunCat Neo**: 별도 프로젝트입니다. 앱 자체는 재배포하지 않습니다. [Custom Metrics JSON Schema](https://github.com/runcat-dev/RunCatNeo/blob/main/docs/CustomMetricsSchema.md)
+- This RunCat integration and its install scripts: [MIT License](LICENSE) · Copyright (c) 2026 yes2310
+- **macwatt**: Copyright (c) 2026 Amur Labs LLC, MIT License — keep its [original license](third_party/macwatt/LICENSE) and [notices](THIRD_PARTY_NOTICES.md).
+- **RunCat Neo**: a separate project; the app is not redistributed here. [Custom Metrics JSON Schema](https://github.com/runcat-dev/RunCatNeo/blob/main/docs/CustomMetricsSchema.md)
 
 *Unofficial integration. Not affiliated with or endorsed by RunCat Neo or macwatt.*

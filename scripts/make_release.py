@@ -12,7 +12,7 @@ if not VERSION or any(c not in "0123456789." for c in VERSION):
 
 FILES = (
     "install.sh", "uninstall.sh", "status.sh", "power_metrics.py",
-    "README.md", "README_EN.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md", "VERSION",
+    "README.md", "README.ko.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md", "VERSION",
     "third_party/macwatt/macwatt.py", "third_party/macwatt/LICENSE", "third_party/macwatt/SOURCE.md",
 )
 OUTPUT = ROOT / "dist" / ("runcat-macwatt-v" + VERSION + ".zip")

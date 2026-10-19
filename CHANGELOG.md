@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Make English the default README (`README.md`); Korean moved to `README.ko.md`.
+
 ## [1.0.0] — 2026-10-19
 
 - First public release of the unofficial RunCat Neo × macwatt bridge.

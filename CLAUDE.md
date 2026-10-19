@@ -8,7 +8,7 @@ Publish the provided repository to GitHub using `gh` on the maintainer's Mac wit
 
 ## Before publishing
 
-1. Inspect README.md, README_EN.md, LICENSE, THIRD_PARTY_NOTICES.md, the bundled `third_party/macwatt/LICENSE`, and the installer source. Do not drop upstream copyright/permission notice.
+1. Inspect README.md (English), README.ko.md (Korean), LICENSE, THIRD_PARTY_NOTICES.md, the bundled `third_party/macwatt/LICENSE`, and the installer source. Do not drop upstream copyright/permission notice.
 2. Run `bash scripts/test.sh`; stop publication if it fails. The test builds `dist/runcat-macwatt-v1.0.0.zip`.
 3. Check `gh auth status`, confirm correct owner, and inspect whether `runcat-macwatt` already exists. Check `git status` and `git remote -v` before changing anything.
 4. Prefer running a real Mac preflight `python3 power_metrics.py --check` with `PYTHONPATH=third_party/macwatt` or `bash install.sh` if RunCat/telemetry exists. Do not claim hardware testing if not performed.
